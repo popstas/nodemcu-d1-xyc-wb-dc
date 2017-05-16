@@ -1,5 +1,5 @@
 wifi.setmode(wifi.STATION)
-wifi.sta.config(wifi_ssid, wifi_password)
+wifi.sta.config("ssid", "password")
 wifi.sta.sethostname("nodemcu-d1")
 
 local ip = wifi.sta.getip()
