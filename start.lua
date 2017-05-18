@@ -10,4 +10,7 @@ mqtt_host        = "popstas-home"
 dofile('wifi.lua')
 dofile('mqtt.lua')
 dofile('ws2812.lua')
-dofile('xyc_wb_dc.lua')
+mqtt_client:on("connect", function(client)
+    dofile('xyc_wb_dc.lua')
+end)
+

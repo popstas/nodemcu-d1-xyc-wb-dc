@@ -3,8 +3,11 @@ move_detected = false
 gpio.mode(xyc_pin, gpio.INPUT)
 
 function detect_move(off_delay, scan_period, threshold, on_callback, off_callback)
+    print("scan_period:", scan_period)
+    print("off_delay:", off_delay)
+    print("threshold:", threshold)
+
     local buffer = {}
-    off_callback()
     tmr.alarm(0, 1000, tmr.ALARM_AUTO, function()
         local move = gpio.read(xyc_pin)
         table.insert(buffer, move)
@@ -20,7 +23,9 @@ function detect_move(off_delay, scan_period, threshold, on_callback, off_callbac
         end
         move_average = sum / scan_period
 
-        print("avg: " .. move_average)
+        mqtt_client:publish("/move/move", move, 0, 0)
+        mqtt_client:publish("/move/avg", move_average, 0, 0)
+        print("move: ", move, "avg: ", move_average)
         --print("move_detected: ", move_detected)
 
         if move_average >= threshold then
@@ -42,10 +47,12 @@ function detect_move(off_delay, scan_period, threshold, on_callback, off_callbac
 end
 
 local on_callback = function()
+    mqtt_client:publish("/move/move_detect", "1", 0, 0)
     print("move detected!")
     http.get(xyc_on_url)
 end
 local off_callback = function()
+    mqtt_client:publish("/move/move_detect", "0", 0, 0)
     print("move ended")
     http.get(xyc_off_url)
 end
