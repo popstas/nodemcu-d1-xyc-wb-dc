@@ -4,7 +4,7 @@
 # Path to nodemcu-uploader (https://github.com/kmpm/nodemcu-uploader)
 NODEMCU-UPLOADER=nodemcu-tool
 # Serial port
-PORT=/dev/tty.wchusbserial14630
+PORT=/dev/tty.wchusbserial14310
 SPEED=115200
 
 ######################################################################
@@ -13,7 +13,7 @@ SPEED=115200
 LUA_FILES := \
    init.lua \
    start.lua \
-   ws2812.lua \
+   mqtt.lua \
    ws2812.lua \
    xyc_wb_dc.lua \
 
