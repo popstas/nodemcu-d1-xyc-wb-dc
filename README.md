@@ -6,3 +6,7 @@
 - `mqtt.lua` - mqtt init
 - `user_modules.h` - file for `nodemcu-firmware`
 
+## Setup
+```
+make upload_all
+```

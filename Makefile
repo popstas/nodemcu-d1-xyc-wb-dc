@@ -14,6 +14,8 @@ LUA_FILES := \
    init.lua \
    start.lua \
    mqtt.lua \
+   wifi_config.lua \
+   wifi.lua \
    ws2812.lua \
    xyc_wb_dc.lua \
 

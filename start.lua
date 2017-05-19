@@ -7,14 +7,14 @@ xyc_on_url       = "http://ws2812-strip-1/ws2812.lua?r=100&g=68&b=34"
 xyc_off_url      = "http://ws2812-strip-1/ws2812.lua?r=0&g=0&b=0"
 mqtt_host        = "popstas-server"
 mqtt_topic       = "move"
-wifi_ssid        = "ssid"
 
+dofile("wifi_config.lua")
 dofile('wifi.lua')
 dofile('mqtt.lua')
 dofile('ws2812.lua')
 dofile('xyc_wb_dc.lua')
 
-wifi_connect(wifi_ssid)
+wifi_connect(wifi_ssid, wifi_password)
 mqtt_connect()
 
 mqtt_client:on("connect", function(client)
