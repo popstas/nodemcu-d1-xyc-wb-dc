@@ -15,10 +15,13 @@ dofile('ws2812.lua')
 dofile('xyc_wb_dc.lua')
 
 wifi_connect(wifi_ssid, wifi_password)
-mqtt_connect()
-
-mqtt_client:on("connect", function(client)
-    move_detected = false
-    gpio.mode(xyc_pin, gpio.INPUT)
-    detect_move(xyc_off_delay, xyc_scan_period, xyc_threshold, on_callback, off_callback)
+wifi.eventmon.register(wifi.eventmon.STA_GOT_IP, function(T)
+    print("nodemcu running at http://" .. T.IP)
+    mqtt_connect()
+    mqtt_client:on("connect", function(client)
+        move_detected = false
+        gpio.mode(xyc_pin, gpio.INPUT)
+        detect_move(xyc_off_delay, xyc_scan_period, xyc_threshold, on_callback, off_callback)
+    end)
 end)
+
