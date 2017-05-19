@@ -6,10 +6,11 @@ function round(num, numDecimalPlaces)
   return math.floor(num + 0.5)
 end
 
-function detect_move(off_delay, scan_period, threshold, on_callback, off_callback)
+function detect_move(off_delay, scan_period, on_threshold, off_threshold, on_callback, off_callback)
     print("scan_period:", scan_period)
     print("off_delay:", off_delay)
-    print("threshold:", threshold)
+    print("on threshold:", on_threshold)
+    print("off threshold:", off_threshold)
 
     local buffer = {}
     tmr.alarm(0, 1000, tmr.ALARM_AUTO, function()
@@ -32,7 +33,7 @@ function detect_move(off_delay, scan_period, threshold, on_callback, off_callbac
         print("move: ", move, "avg: ", round(move_average*100, 0))
         --print("move_detected: ", move_detected)
 
-        if move_average >= threshold then
+        if move_average >= on_threshold then
             if not move_detected then
                 move_on_callback()
             end
@@ -40,7 +41,7 @@ function detect_move(off_delay, scan_period, threshold, on_callback, off_callbac
             move_detected = true
 
             tmr.alarm(1, off_delay * 1000, tmr.ALARM_SINGLE, function()
-                move_detected = move_average >= threshold
+                move_detected = move_average <= off_threshold
                 if not move_detected then
                     move_off_callback()
                 end
