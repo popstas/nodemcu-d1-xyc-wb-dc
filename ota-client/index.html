@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en-US">
+<head>
+    <meta charset="UTF-8">
+    <title>OTA client</title>
+    <script type="text/javascript" src="node_modules/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="node_modules/jquery-form/dist/jquery.form.min.js"></script>
+    <script type="text/javascript" src="node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="node_modules/monaco-editor/min/vs/loader.js"></script>
+    <script type="text/javascript" src="script.js"></script>
+    <link rel="stylesheet" type="text/css" href="node_modules/bootstrap/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" type="text/css" href="style.css"/>
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <div class="form-group">
+            <label for="filename">hostname</label>
+            <input type="text" id="hostname" name="hostname" class="form-control" value="192.168.1.13"/>
+        </div>
+
+        <form class="ota-form" method="post">
+            <div class="form-group">
+                <label for="filename">filename</label>
+                <input type="text" id="filename" name="filename" class="form-control"/>
+            </div>
+
+            <div class="form-group">
+                <label for="content">content</label>
+                <textarea id="content" name="content" class="form-control"></textarea>
+                <div id="editor"></div>
+            </div>
+
+            <button type="submit" class="btn btn-default">Submit</button>
+        </form>
+    </div>
+</div>
+</body>
+</html>
