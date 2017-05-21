@@ -17,6 +17,8 @@ LUA_FILES := \
    mqtt.lua \
    wifi.lua \
    ws2812.lua \
+   ota.lua \
+   httpserver-request.lua \
    xyc_wb_dc.lua \
 
 # Print usage
