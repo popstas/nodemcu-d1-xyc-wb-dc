@@ -1,11 +1,3 @@
-local function round(num, numDecimalPlaces)
-  if numDecimalPlaces and numDecimalPlaces>0 then
-    local mult = 10^numDecimalPlaces
-    return math.floor(num * mult + 0.5) / mult
-  end
-  return math.floor(num + 0.5)
-end
-
 local function move_on_callback()
     mqttClient:publish("move_detect", 1)
     print("move detected!")
@@ -18,39 +10,32 @@ local function move_off_callback()
     http.get(xyc_off_url)
 end
 
-return function(off_delay, scan_period, on_threshold, off_threshold, on_callback, off_callback)
-    print("scan_period:", scan_period)
-    print("off_delay:", off_delay)
-    print("on threshold:", on_threshold)
-    print("off threshold:", off_threshold)
-
+return function(xyc_pin, off_delay, scan_period, on_threshold, off_threshold, on_callback, off_callback)
     local buffer = {}
+    local move_detected = false
+    gpio.mode(xyc_pin, gpio.INPUT)
     tmr.alarm(0, 1000, tmr.ALARM_AUTO, function()
         local move = gpio.read(xyc_pin)
         table.insert(buffer, move)
         if #buffer > scan_period then
             table.remove(buffer, 1)
         end
-        --print("move: " .. move)
-        --print("buffer size: " .. #buffer)
-
+    
         local sum = 0
         for i = 1, #buffer do
             sum = sum + buffer[i]
         end
         move_average = sum / scan_period
-
-        mqttClient:publish("avg", round(move_average*100, 0))
-        print("move: ", move, "avg: ", round(move_average*100, 0))
-        --print("move_detected: ", move_detected)
-
+    
+        mqttClient:publish("avg", move_average*100)
+        print("move: ", move, "avg: ", move_average*100)
+    
         if move_average >= on_threshold then
             if not move_detected then
                 move_on_callback()
             end
-
             move_detected = true
-
+    
             tmr.alarm(1, off_delay * 1000, tmr.ALARM_SINGLE, function()
                 move_detected = move_average <= off_threshold
                 if not move_detected then
@@ -58,6 +43,5 @@ return function(off_delay, scan_period, on_threshold, off_threshold, on_callback
                 end
             end)
         end
-
     end)
 end

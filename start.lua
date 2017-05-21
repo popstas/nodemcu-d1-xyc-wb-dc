@@ -17,16 +17,14 @@ if node_started then node.restart() end -- restart when included after start
 
 dofile('wifi.lc')(wifi_ssid, wifi_password)
 collectgarbage()
-dofile('ws2812.lc')()
+--dofile('ws2812.lc')()
 
 wifi.eventmon.register(wifi.eventmon.STA_GOT_IP, function(T)
     print("http://" .. T.IP)
     mqttClient:connect()
     mqttClient.client:on("connect", function(client)
         print("mqtt connected")
-        move_detected = false
-        gpio.mode(xyc_pin, gpio.INPUT)
-        dofile('xyc_wb_dc.lc')(xyc_off_delay, xyc_scan_period, xyc_on_threshold, xyc_off_threshold, on_callback, off_callback)
+        dofile('xyc_wb_dc.lc')(xyc_pin, xyc_off_delay, xyc_scan_period, xyc_on_threshold, xyc_off_threshold, on_callback, off_callback)
     end)
     dofile('ota.lc')()
     collectgarbage()
