@@ -19,7 +19,7 @@ function onReceive(conn, payload)
         end
     end
 
-    local req = dofile("httpserver-request.lua")(payload)
+    local req = dofile("httpserver-request.lc")(payload)
 
     print("method", req.method)
     print("request", req.request)

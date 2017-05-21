@@ -1,4 +1,4 @@
-print("START")
+print("free:", node.heap())
 startup_timeout = 1000
 
 uart.setup(0, 115200, 8, 0, 1, 1 )
@@ -28,7 +28,36 @@ function startup()
         end
     -- otherwise, start up
     print('in startup')
-    dofile('start.lua')
+    compileFiles()
+    dofile('start.lc')
+end
+
+function compileFiles()
+    local compileAndRemoveIfNeeded = function(f)
+       if file.open(f) then
+          file.close()
+          print('Compiling:', f)
+          node.compile(f)
+          file.remove(f)
+          collectgarbage()
+       end
+    end
+    
+    local serverFiles = {
+       'httpserver-request.lua',
+       'start.lua',
+       'ota.lua',
+       'xyc_wb_dc.lua',
+       'config_secrets.lua',
+       'wifi.lua',
+       'mqtt.lua',
+       'ws2812.lua'
+    }
+    for i, f in ipairs(serverFiles) do compileAndRemoveIfNeeded(f) end
+
+    compileAndRemoveIfNeeded = nil
+    serverFiles = nil
+    collectgarbage()
 end
 
 tmr.alarm(0,1000,0,abortInit)           -- call abortInit after 1s

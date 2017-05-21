@@ -10,12 +10,12 @@ mqtt_topic       = "home/room/move"
 mqtt_name        = "move-room"
 mqtt_host        = "home.popstas.ru"
 
-dofile("config_secrets.lua")
-dofile('mqtt.lua')
-dofile('ota.lua')
-dofile('wifi.lua')
-dofile('ws2812.lua')
-dofile('xyc_wb_dc.lua')
+dofile("config_secrets.lc")
+dofile('mqtt.lc')
+dofile('ota.lc')
+dofile('wifi.lc')
+dofile('ws2812.lc')
+dofile('xyc_wb_dc.lc')
 
 if node_started then node.restart() end -- restart when included after start
 
@@ -32,6 +32,7 @@ wifi.eventmon.register(wifi.eventmon.STA_GOT_IP, function(T)
         detect_move(xyc_off_delay, xyc_scan_period, xyc_on_threshold, xyc_off_threshold, on_callback, off_callback)
     end)
     ota_init()
+    print("free after start:", node.heap())
 end)
 
 node_started = true
