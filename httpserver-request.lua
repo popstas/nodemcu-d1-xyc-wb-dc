@@ -34,11 +34,13 @@ end
 local function parseFormData(body)
    local data = {}
    --print("Parsing Form Data")
+   print("h 1:", node.heap())
    for kv in body.gmatch(body, "%s*&?([^=]+=[^&]+)") do
       local key, value = string.match(kv, "(.*)=(.*)")
       --print("Parsed: " .. key .. " => " .. value)
       data[key] = uri_decode(value)
    end
+   print("h 2:", node.heap())
    return data
 end
 

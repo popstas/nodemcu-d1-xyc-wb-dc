@@ -11,27 +11,25 @@ mqtt_name        = "move-room"
 mqtt_host        = "home.popstas.ru"
 
 dofile("config_secrets.lc")
-dofile('mqtt.lc')
-dofile('ota.lc')
-dofile('wifi.lc')
-dofile('ws2812.lc')
-dofile('xyc_wb_dc.lc')
+mqttClient = dofile('mqtt.lc')
 
 if node_started then node.restart() end -- restart when included after start
 
-wifi_connect(wifi_ssid, wifi_password)
-ws2812_init()
+dofile('wifi.lc')(wifi_ssid, wifi_password)
+collectgarbage()
+dofile('ws2812.lc')()
 
 wifi.eventmon.register(wifi.eventmon.STA_GOT_IP, function(T)
-    print("nodemcu running at http://" .. T.IP)
-    mqtt_connect()
-    mqtt_client:on("connect", function(client)
+    print("http://" .. T.IP)
+    mqttClient:connect()
+    mqttClient.client:on("connect", function(client)
         print("mqtt connected")
         move_detected = false
         gpio.mode(xyc_pin, gpio.INPUT)
-        detect_move(xyc_off_delay, xyc_scan_period, xyc_on_threshold, xyc_off_threshold, on_callback, off_callback)
+        dofile('xyc_wb_dc.lc')(xyc_off_delay, xyc_scan_period, xyc_on_threshold, xyc_off_threshold, on_callback, off_callback)
     end)
-    ota_init()
+    dofile('ota.lc')()
+    collectgarbage()
     print("free after start:", node.heap())
 end)
 

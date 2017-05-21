@@ -1,4 +1,4 @@
-function round(num, numDecimalPlaces)
+local function round(num, numDecimalPlaces)
   if numDecimalPlaces and numDecimalPlaces>0 then
     local mult = 10^numDecimalPlaces
     return math.floor(num * mult + 0.5) / mult
@@ -6,7 +6,19 @@ function round(num, numDecimalPlaces)
   return math.floor(num + 0.5)
 end
 
-function detect_move(off_delay, scan_period, on_threshold, off_threshold, on_callback, off_callback)
+local function move_on_callback()
+    mqttClient:publish("move_detect", 1)
+    print("move detected!")
+    http.get(xyc_on_url)
+end
+
+local function move_off_callback()
+    mqttClient:publish("move_detect", 0)
+    print("move ended")
+    http.get(xyc_off_url)
+end
+
+return function(off_delay, scan_period, on_threshold, off_threshold, on_callback, off_callback)
     print("scan_period:", scan_period)
     print("off_delay:", off_delay)
     print("on threshold:", on_threshold)
@@ -28,8 +40,7 @@ function detect_move(off_delay, scan_period, on_threshold, off_threshold, on_cal
         end
         move_average = sum / scan_period
 
-        mqtt_publish("move", move)
-        mqtt_client:publish(mqtt_topic.."/avg", round(move_average*100, 0), 0, 0)
+        mqttClient:publish("avg", round(move_average*100, 0))
         print("move: ", move, "avg: ", round(move_average*100, 0))
         --print("move_detected: ", move_detected)
 
@@ -49,16 +60,4 @@ function detect_move(off_delay, scan_period, on_threshold, off_threshold, on_cal
         end
 
     end)
-end
-
-function move_on_callback()
-    mqtt_client:publish(mqtt_topic.."/move_detect", 1, 0, 0)
-    print("move detected!")
-    http.get(xyc_on_url)
-end
-
-function move_off_callback()
-    mqtt_client:publish(mqtt_topic.."/move_detect", 0, 0, 0)
-    print("move ended")
-    http.get(xyc_off_url)
 end

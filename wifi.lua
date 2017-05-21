@@ -1,4 +1,4 @@
-function wifi_connect(ssid, password)
+return function (ssid, password)
     print("connect to wifi "..ssid.."...")
     wifi.setmode(wifi.STATION)
     wifi.sta.config(ssid, password)

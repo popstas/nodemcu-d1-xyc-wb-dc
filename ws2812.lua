@@ -1,4 +1,4 @@
-function ws2812_init()
+return function()
     ws2812.init()
     
     local buffer = ws2812.newBuffer(1, 3)
