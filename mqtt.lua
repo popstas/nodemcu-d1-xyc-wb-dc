@@ -1,4 +1,4 @@
-mqtt_client = mqtt.Client('move-room')
+mqtt_client = mqtt.Client(mqtt_name, 30, mqtt_login, mqtt_password)
 
 function mqtt_connect()
     print("mqtt connect to "..mqtt_host.."...")

@@ -7,6 +7,8 @@
 - `user_modules.h` - file for `nodemcu-firmware`
 
 ## Setup
+1. Rename `config_secrets.default.lua` to `config_secrets.lua`
+2. Upload files:
 ```
 make upload_all
 ```
