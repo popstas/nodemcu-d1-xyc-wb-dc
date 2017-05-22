@@ -53,6 +53,13 @@ local function onReceive(conn, payload)
     print("request", req.request)
 
     if req.uri.file == "http/ota" then ota_controller(conn, req, req.uri.args) end
+
+    if req.uri.file == "http/reset" and req.method == "POST" then
+        conn_response(conn, 200, "restarting...")
+        print("received restart signal over http")
+        node.restart()
+    end
+
     req = nil
     collectgarbage()
 end
