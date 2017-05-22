@@ -1,5 +1,12 @@
+local function conn_response(conn, code, content)
+    local codes = { [200] = "OK", [400] = "Bad Request", [404] = "Not Found", [500] = "Internal Server Error", }
+    conn:send("HTTP/1.0 "..code.." "..codes[code].."\r\nServer: nodemcu-ota\r\nContent-Type: text/plain\r\nConnection: close\r\n\r\n"..content)
+    --
+end
+
 local function ota_controller(conn, req, args)
     collectgarbage()
+    local resp = ""
     print("before request:", node.heap())
     local data = req.getRequestData()
     print("after request:", node.heap())
@@ -15,12 +22,15 @@ local function ota_controller(conn, req, args)
             file.write(content)
             file.close()
             print("OK")
-            conn:send("OK")
+            conn_response(conn, 200, "OK")
+            return
         else
             print("write file failed")
-            conn:send("ERROR")
+            conn_response(conn, 500, "ERROR")
+            return
         end
     end
+    conn_response(conn, 400, "Invalid arguments, use POST filename and content")
 end
 
 local function onReceive(conn, payload)
@@ -44,7 +54,6 @@ local function onReceive(conn, payload)
 
     if req.uri.file == "http/ota" then ota_controller(conn, req, req.uri.args) end
     req = nil
-    conn:close()
     collectgarbage()
 end
 
