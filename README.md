@@ -5,6 +5,7 @@
 - `xyc_wb_dc.lua` - microwave sendor module init
 - `mqtt.lua` - mqtt init
 - `user_modules.h` - file for `nodemcu-firmware`
+- `nodemcu-ota-uploader.py` - script for upload file over HTTP
 
 
 ## Setup Mosquitto
