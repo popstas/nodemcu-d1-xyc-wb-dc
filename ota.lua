@@ -1,18 +1,28 @@
 local function ota_controller(conn, req, args)
     collectgarbage()
     local resp = ""
-    print("before request:", node.heap())
+    --print("before request:", node.heap())
     local data = req.getRequestData()
-    print("after request:", node.heap())
+    --print("after request:", node.heap())
    
     print("received OTA request:")
     local filename = data.filename
     local content = data.content
+    local chunk_num = data.chunk
+
     print("filename:", filename)
+    if chunk_num then
+        print("chunk:", chunk_num)
+    end
+
     --print("content:", content)
     if filename and content then
-        local f = file.open(filename, "w")
+        local fmode = "w"
+        if chunk_num and chunk_num ~= "1" then fmode = "a+" end
+
+        local f = file.open(filename, fmode)
         if f then
+            --print("content:", content)
             file.write(content)
             file.close()
             print("OK")
