@@ -45,6 +45,8 @@ function compileFiles()
     
     local serverFiles = {
        'httpserver-request.lua',
+       'httpserver-receive.lua',
+       'httpserver-response.lua',
        'start.lua',
        'ota.lua',
        'xyc_wb_dc.lua',
