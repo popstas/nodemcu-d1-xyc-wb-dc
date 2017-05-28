@@ -13,8 +13,8 @@ return function(conn, payload)
 
     local req = dofile("httpserver-request.lc")(payload)
 
-    print("method", req.method)
-    print("request", req.request)
+    --print("method", req.method)
+    --print("request", req.request)
 
     return req
 end

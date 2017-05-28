@@ -28,7 +28,7 @@ return function(xyc_pin, off_delay, scan_period, on_threshold, off_threshold, on
         move_average = sum / scan_period
     
         mqttClient:publish("avg", move_average*100)
-        print("move: ", move, "avg: ", move_average*100)
+        --print("move: ", move, "avg: ", move_average*100)
     
         if move_average >= on_threshold then
             if not move_detected then

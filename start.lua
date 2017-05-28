@@ -28,7 +28,7 @@ wifi.eventmon.register(wifi.eventmon.STA_GOT_IP, function(T)
     end)
     dofile('ota.lc')()
     collectgarbage()
-    print("free after start:", node.heap())
+    print("free after wifi connected:", node.heap())
 end)
 
 node_started = true
