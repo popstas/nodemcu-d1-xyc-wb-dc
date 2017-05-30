@@ -1,3 +1,9 @@
+local function http_response(conn, code, content)
+    local codes = { [200] = "OK", [400] = "Bad Request", [404] = "Not Found", [500] = "Internal Server Error", }
+    conn:send("HTTP/1.0 "..code.." "..codes[code].."\r\nServer: nodemcu-ota\r\nContent-Type: text/plain\r\nConnection: close\r\n\r\n"..content)
+    --
+end
+
 local function ota_controller(conn, req, args)
     collectgarbage()
     local resp = ""
@@ -26,20 +32,20 @@ local function ota_controller(conn, req, args)
             file.write(content)
             file.close()
             print("OK")
-            dofile("http-response.lc")(conn, 200, "OK")
+            http_response(conn, 200, "OK")
             return
         else
             print("write file failed")
-            dofile("http-response.lc")(conn, 500, "ERROR")
+            http_response(conn, 500, "ERROR")
             return
         end
     end
-    dofile("http-response.lc")(conn, 400, "Invalid arguments, use POST filename and content")
+    http_response(conn, 400, "Invalid arguments, use POST filename and content")
 end
 
 
 local function onReceive(conn, payload)
-    local req = dofile('http-receive.lc')(conn, payload)
+    local req = dofile('http-request.lc')(conn, payload)
     if req == false then
         return -- not all body received
     end
@@ -49,7 +55,7 @@ local function onReceive(conn, payload)
     end
 
     if req.uri.file == "http/reset" and req.method == "POST" then
-        dofile("http-response.lc")(conn, 200, "restarting...")
+        http_response(conn, 200, "restarting...")
         print("received restart signal over http")
         tmr.alarm(0, 1000, tmr.ALARM_SINGLE, function()
             conn:close()

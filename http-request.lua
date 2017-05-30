@@ -107,7 +107,7 @@ end
 
 -- Parses the client's request. Returns a dictionary containing pretty much everything
 -- the server needs to know about the uri.
-return function (request)
+local function http_request(request)
    --print("Request: \n", request)
    local e = request:find("\r\n", 1, true)
    if not e then return nil end
@@ -118,4 +118,24 @@ return function (request)
    r.uri = parseUri(r.request)
    r.getRequestData = getRequestData(request)
    return r
+end
+
+-- end of httpserver-request
+
+return function(conn, payload)
+    if payload:find("Content%-Length:") or bBodyMissing then
+        if fullPayload then fullPayload = fullPayload .. payload else fullPayload = payload end
+        if (tonumber(string.match(fullPayload, "%d+", fullPayload:find("Content%-Length:")+16)) > #fullPayload:sub(fullPayload:find("\r\n\r\n", 1, true)+4, #fullPayload)) then
+            bBodyMissing = true
+            return false
+        else
+            payload = fullPayload
+            fullPayload, bBodyMissing = nil
+        end
+    end
+    collectgarbage()
+
+    local req = http_request(payload)
+
+    return req
 end

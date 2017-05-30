@@ -19,8 +19,6 @@ LUA_FILES := \
    ws2812.lua \
    ota.lua \
    http-request.lua \
-   http-receive.lua \
-   http-response.lua \
    xyc_wb_dc.lua \
 
 # Print usage
