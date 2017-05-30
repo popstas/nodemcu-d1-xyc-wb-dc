@@ -42,4 +42,7 @@ You can send POST request to `/ota` with `filename` and `content` data.
 HTTP request processed with `http-request.lua` from [marcoskirsch/nodemcu-httpserver](https://github.com/marcoskirsch/nodemcu-httpserver).
 
 ### OTA client
-Setup client with `npm install`.
+Setup client with `npm install`. Or better use `nodemcu-ota-uploader.py`
+
+## Health
+You can see basic info on `/health`

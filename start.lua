@@ -1,4 +1,5 @@
 -- Variables --
+dev_name         = "Move detector"
 xyc_pin          = 3
 xyc_scan_period  = 60
 xyc_off_delay    = 30

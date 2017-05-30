@@ -44,6 +44,41 @@ local function ota_controller(conn, req, args)
 end
 
 
+local function reset_controller(conn, req, args)
+    http_response(conn, 200, "restarting...")
+    print("received restart signal over http")
+    tmr.alarm(0, 1000, tmr.ALARM_SINGLE, function()
+        conn:close()
+        node.restart()
+    end)
+end
+
+
+local function health_controller(conn, req, args)
+    local resp = "# General: \n"
+    resp = resp .. "Device name: " .. dev_name .. "\n"
+    resp = resp .. "Chip ID: " .. node.chipid() .. "\n"
+    resp = resp .. "Uptime: " .. tmr.time() .. "\n\n"
+
+    local free, used, total = file.fsinfo()
+    resp = resp .. "# File system:\n"
+    resp = resp .. "Total: " .. total .. "\n"
+    resp = resp .. "Used:  " .. used .. "\n"
+    resp = resp .. "Free:  " .. free .. "\n\n"
+
+    resp = resp .. "# Files (name, size):\n"
+    local l = file.list();
+    for k,v in pairs(l) do
+        resp = resp .. k..", "..v.."\n"
+    end
+
+    resp = resp .. "\n"
+    resp = resp .. "Heap: " .. node.heap() .. "\n"
+
+    http_response(conn, 200, resp)
+end
+
+
 local function onReceive(conn, payload)
     local req = dofile('http-request.lc')(conn, payload)
     if req == false then
@@ -55,12 +90,11 @@ local function onReceive(conn, payload)
     end
 
     if req.uri.file == "http/reset" and req.method == "POST" then
-        http_response(conn, 200, "restarting...")
-        print("received restart signal over http")
-        tmr.alarm(0, 1000, tmr.ALARM_SINGLE, function()
-            conn:close()
-            node.restart()
-        end)
+        reset_controller(conn, req, req.uri.args)
+    end
+
+    if req.uri.file == "http/health" then
+        health_controller(conn, req, req.uri.args)
     end
 
     req = nil
@@ -71,6 +105,7 @@ end
 local function onSent(conn, payload)
     conn:close()
 end
+
 
 return function()
     local s = net.createServer(net.TCP, 10)
