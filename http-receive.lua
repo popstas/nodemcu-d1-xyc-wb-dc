@@ -11,7 +11,7 @@ return function(conn, payload)
     end
     collectgarbage()
 
-    local req = dofile("httpserver-request.lc")(payload)
+    local req = dofile("http-request.lc")(payload)
 
     --print("method", req.method)
     --print("request", req.request)

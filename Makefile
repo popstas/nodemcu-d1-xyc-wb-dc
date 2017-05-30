@@ -18,7 +18,9 @@ LUA_FILES := \
    wifi.lua \
    ws2812.lua \
    ota.lua \
-   httpserver-request.lua \
+   http-request.lua \
+   http-receive.lua \
+   http-response.lua \
    xyc_wb_dc.lua \
 
 # Print usage

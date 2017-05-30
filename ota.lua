@@ -26,20 +26,20 @@ local function ota_controller(conn, req, args)
             file.write(content)
             file.close()
             print("OK")
-            dofile("httpserver-response.lc")(conn, 200, "OK")
+            dofile("http-response.lc")(conn, 200, "OK")
             return
         else
             print("write file failed")
-            dofile("httpserver-response.lc")(conn, 500, "ERROR")
+            dofile("http-response.lc")(conn, 500, "ERROR")
             return
         end
     end
-    dofile("httpserver-response.lc")(conn, 400, "Invalid arguments, use POST filename and content")
+    dofile("http-response.lc")(conn, 400, "Invalid arguments, use POST filename and content")
 end
 
 
 local function onReceive(conn, payload)
-    local req = dofile('httpserver-receive.lc')(conn, payload)
+    local req = dofile('http-receive.lc')(conn, payload)
     if req == false then
         return -- not all body received
     end
@@ -49,7 +49,7 @@ local function onReceive(conn, payload)
     end
 
     if req.uri.file == "http/reset" and req.method == "POST" then
-        dofile("httpserver-response.lc")(conn, 200, "restarting...")
+        dofile("http-response.lc")(conn, 200, "restarting...")
         print("received restart signal over http")
         tmr.alarm(0, 1000, tmr.ALARM_SINGLE, function()
             conn:close()
