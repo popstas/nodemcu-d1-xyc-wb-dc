@@ -44,7 +44,7 @@ local function ota_controller(conn, req, args)
 end
 
 
-local function reset_controller(conn, req, args)
+local function restart_controller(conn, req, args)
     http_response(conn, 200, "restarting...")
     print("received restart signal over http")
     tmr.alarm(0, 1000, tmr.ALARM_SINGLE, function()
@@ -71,11 +71,14 @@ local function health_controller(conn, req, args)
     for k,v in pairs(l) do
         resp = resp .. k..", "..v.."\n"
     end
+    l = nil
 
     resp = resp .. "\n"
     resp = resp .. "Heap: " .. node.heap() .. "\n"
 
     http_response(conn, 200, resp)
+    resp = nil
+    collectgarbage()
 end
 
 
@@ -89,8 +92,8 @@ local function onReceive(conn, payload)
         ota_controller(conn, req, req.uri.args)
     end
 
-    if req.uri.file == "http/reset" and req.method == "POST" then
-        reset_controller(conn, req, req.uri.args)
+    if req.uri.file == "http/restart" and req.method == "POST" then
+        restart_controller(conn, req, req.uri.args)
     end
 
     if req.uri.file == "http/health" then
