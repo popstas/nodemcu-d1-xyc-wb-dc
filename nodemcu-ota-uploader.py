@@ -11,6 +11,7 @@ import sys
 parser = argparse.ArgumentParser(description='nodemcu-ota-uploader')
 parser.add_argument('file_path', help='File path to upload or \'restart\' command')
 parser.add_argument('-r', '--restart', help='Restart after upload', action='store_true')
+parser.add_argument('-d', '--dofile', help='dofile() after upload', action='store_true')
 parser.add_argument('--host', help='NodeMCU host')
 parser.add_argument('-p', '--port', help='NodeMCU port', default=80)
 parser.add_argument('-t', '--timeout', help='Request timeout', default=10)
@@ -22,11 +23,11 @@ def upload(file_path):
 	with open(file_path, 'r') as f:
 		file_content = f.read()
 
-	file_name = os.path.basename(file_path)
+	filename = os.path.basename(file_path)
 	send_url  = 'http://%s:%d/ota' % (args.host, args.port)
 	file_length = len(file_content)
 
-	print 'Upload file %s, size %d, with chunks by %d:' % (file_name, file_length, args.chunk_size)
+	print 'Upload file %s, size %d, with chunks by %d:' % (filename, file_length, args.chunk_size)
 	if file_length > args.chunk_size:
 		chunk_num = 0
 		chunks_total = math.ceil(file_length / (args.chunk_size + 0.0))
@@ -34,14 +35,23 @@ def upload(file_path):
 			chunk_num = chunk_num + 1
 			chunk = file_content[i:i+args.chunk_size]
 			print('Chunk %d / %d...') % (chunk_num, chunks_total)
-			r = requests.post(send_url, data={'filename': file_name, 'content': chunk, 'chunk': chunk_num }, timeout=args.timeout)
+			r = requests.post(send_url, data={'filename': filename, 'content': chunk, 'chunk': chunk_num }, timeout=args.timeout)
 	else:
-		r = requests.post(send_url, data={'filename': file_name, 'content': file_content }, timeout=args.timeout)
+		r = requests.post(send_url, data={'filename': filename, 'content': file_content}, timeout=args.timeout)
 
 	print 'Upload finished.'
 
+	if args.dofile:
+		dofile(filename)
+
 	if args.restart:
 		restart()
+
+
+def dofile(filename):
+	dofile_url = 'http://%s:%d/dofile' % (args.host, args.port)
+	r = requests.post(dofile_url, data={'filename': filename}, timeout=args.timeout)
+	print 'dofile(%s)' % filename
 
 
 def restart():
