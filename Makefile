@@ -11,15 +11,15 @@ SPEED=115200
 # End of user config
 ######################################################################
 LUA_FILES := \
-   init.lua \
-   config_secrets.lua \
-   start.lua \
-   mqtt.lua \
-   wifi.lua \
-   ws2812.lua \
-   ota.lua \
-   http-request.lua \
-   xyc_wb_dc.lua \
+    init.lua \
+    config_secrets.lua \
+    start.lua \
+    mqtt.lua \
+    wifi.lua \
+    ws2812.lua \
+    ota.lua \
+    http-request.lua \
+    xyc_wb_dc.lua \
 
 # Print usage
 usage:

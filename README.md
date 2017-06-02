@@ -44,5 +44,26 @@ HTTP request processed with `http-request.lua` from [marcoskirsch/nodemcu-httpse
 ### OTA client
 Setup client with `npm install`. Or better use `nodemcu-ota-uploader.py`
 
+## nodemcu-ota-uploader
+You should define `host` via command line:
+```
+nodemcu-ota-uploader --host 192.168.1.2
+```
+or via config `.ota` in project root:
+```
+host=192.168.1.2
+```
+
+Upload:
+```
+nodemcu-ota-uploader file.lua
+```
+
+Restart:
+```
+nodemcu-ota-uploader restart
+```
+
+
 ## Health
 You can see basic info on `/health`

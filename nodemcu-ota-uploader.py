@@ -1,14 +1,17 @@
 #!/usr/bin/env python
 
 import argparse
+import ConfigParser
 import math
-import os.path
+import os
 import requests
+import StringIO
+import sys
 
 parser = argparse.ArgumentParser(description='nodemcu-ota-uploader')
 parser.add_argument('file_path', help='File path to upload or \'restart\' command')
 parser.add_argument('-r', '--restart', help='Restart after upload', action='store_true')
-parser.add_argument('--host', help='NodeMCU host', required=True)
+parser.add_argument('--host', help='NodeMCU host')
 parser.add_argument('-p', '--port', help='NodeMCU port', default=80)
 parser.add_argument('-t', '--timeout', help='Request timeout', default=10)
 parser.add_argument('-c', '--chunk-size', help='Chunk size', default=1024)
@@ -48,6 +51,19 @@ def restart():
 
 
 def main():
+	config_path = os.getcwd() + '/.ota'
+	if os.path.isfile(config_path):
+		config_raw = '[ota]\n' + open(config_path, 'r').read()
+		config_fp = StringIO.StringIO(config_raw)
+		config = ConfigParser.RawConfigParser()
+		config.readfp(config_fp)
+		if not args.host:
+			args.host = config.get('ota', 'host')
+
+	if not args.host:
+		print('host not defined')
+		sys.exit(1)
+
 	if args.file_path == 'restart':
 		restart()
 	else:
