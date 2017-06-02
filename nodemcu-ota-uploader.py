@@ -7,6 +7,7 @@ import os
 import requests
 import StringIO
 import sys
+import telnetlib
 
 parser = argparse.ArgumentParser(description='nodemcu-ota-uploader')
 parser.add_argument('file_path', help='File path to upload or \'restart\' command')
@@ -60,6 +61,15 @@ def restart():
 	print 'Restarted.'
 
 
+def telnet(host):
+	telnet_url = 'http://%s:%d/telnet' % (args.host, args.port)
+	r = requests.post(telnet_url, timeout=args.timeout)
+	port = int(r.text.split(': ')[-1])
+	print 'Connect to %s:%d' % (host, port)
+	tn = telnetlib.Telnet(host, port)
+	print tn.interact()
+
+
 def main():
 	config_path = os.getcwd() + '/.ota'
 	if os.path.isfile(config_path):
@@ -76,6 +86,8 @@ def main():
 
 	if args.file_path == 'restart':
 		restart()
+	elif args.file_path == 'telnet':
+		telnet(args.host)
 	else:
 		upload(args.file_path)
 
