@@ -21,75 +21,76 @@ args = parser.parse_args()
 
 
 def upload(file_path):
-	with open(file_path, 'r') as f:
-		file_content = f.read()
+    with open(file_path, 'r') as f:
+        file_content = f.read()
 
-	filename = os.path.basename(file_path)
-	send_url  = 'http://%s:%d/ota' % (args.host, args.port)
-	file_length = len(file_content)
+    filename = os.path.basename(file_path)
+    send_url = 'http://%s:%d/ota' % (args.host, args.port)
+    file_length = len(file_content)
 
-	print 'Upload file %s, size %d, with chunks by %d:' % (filename, file_length, args.chunk_size)
-	if file_length > args.chunk_size:
-		chunk_num = 0
-		chunks_total = math.ceil(file_length / (args.chunk_size + 0.0))
-		for i in range(0, file_length, args.chunk_size):
-			chunk_num = chunk_num + 1
-			chunk = file_content[i:i+args.chunk_size]
-			print('Chunk %d / %d...') % (chunk_num, chunks_total)
-			r = requests.post(send_url, data={'filename': filename, 'content': chunk, 'chunk': chunk_num }, timeout=args.timeout)
-	else:
-		r = requests.post(send_url, data={'filename': filename, 'content': file_content}, timeout=args.timeout)
+    print 'Upload file %s, size %d, with chunks by %d:' % (filename, file_length, args.chunk_size)
+    if file_length > args.chunk_size:
+        chunk_num = 0
+        chunks_total = math.ceil(file_length / (args.chunk_size + 0.0))
+        for i in range(0, file_length, args.chunk_size):
+            chunk_num = chunk_num + 1
+            chunk = file_content[i:i + args.chunk_size]
+            print('Chunk %d / %d...') % (chunk_num, chunks_total)
+            r = requests.post(send_url, data={'filename': filename, 'content': chunk, 'chunk': chunk_num},
+                              timeout=args.timeout)
+    else:
+        r = requests.post(send_url, data={'filename': filename, 'content': file_content}, timeout=args.timeout)
 
-	print 'Upload finished.'
+    print 'Upload finished.'
 
-	if args.dofile:
-		dofile(filename)
+    if args.dofile:
+        dofile(filename)
 
-	if args.restart:
-		restart()
+    if args.restart:
+        restart()
 
 
 def dofile(filename):
-	dofile_url = 'http://%s:%d/dofile' % (args.host, args.port)
-	r = requests.post(dofile_url, data={'filename': filename}, timeout=args.timeout)
-	print 'dofile(%s)' % filename
+    dofile_url = 'http://%s:%d/dofile' % (args.host, args.port)
+    r = requests.post(dofile_url, data={'filename': filename}, timeout=args.timeout)
+    print 'dofile(%s)' % filename
 
 
 def restart():
-	restart_url = 'http://%s:%d/restart' % (args.host, args.port)
-	r = requests.post(restart_url, timeout=args.timeout)
-	print 'Restarted.'
+    restart_url = 'http://%s:%d/restart' % (args.host, args.port)
+    r = requests.post(restart_url, timeout=args.timeout)
+    print 'Restarted.'
 
 
 def telnet(host):
-	telnet_url = 'http://%s:%d/telnet' % (args.host, args.port)
-	r = requests.post(telnet_url, timeout=args.timeout)
-	port = int(r.text.split(': ')[-1])
-	print 'Connect to %s:%d' % (host, port)
-	tn = telnetlib.Telnet(host, port)
-	print tn.interact()
+    telnet_url = 'http://%s:%d/telnet' % (args.host, args.port)
+    r = requests.post(telnet_url, timeout=args.timeout)
+    port = int(r.text.split(': ')[-1])
+    print 'Connect to %s:%d' % (host, port)
+    tn = telnetlib.Telnet(host, port)
+    print tn.interact()
 
 
 def main():
-	config_path = os.getcwd() + '/.ota'
-	if os.path.isfile(config_path):
-		config_raw = '[ota]\n' + open(config_path, 'r').read()
-		config_fp = StringIO.StringIO(config_raw)
-		config = ConfigParser.RawConfigParser()
-		config.readfp(config_fp)
-		if not args.host:
-			args.host = config.get('ota', 'host')
+    config_path = os.getcwd() + '/.ota'
+    if os.path.isfile(config_path):
+        config_raw = '[ota]\n' + open(config_path, 'r').read()
+        config_fp = StringIO.StringIO(config_raw)
+        config = ConfigParser.RawConfigParser()
+        config.readfp(config_fp)
+        if not args.host:
+            args.host = config.get('ota', 'host')
 
-	if not args.host:
-		print('host not defined')
-		sys.exit(1)
+    if not args.host:
+        print('host not defined')
+        sys.exit(1)
 
-	if args.file_path == 'restart':
-		restart()
-	elif args.file_path == 'telnet':
-		telnet(args.host)
-	else:
-		upload(args.file_path)
+    if args.file_path == 'restart':
+        restart()
+    elif args.file_path == 'telnet':
+        telnet(args.host)
+    else:
+        upload(args.file_path)
 
 
 main()
