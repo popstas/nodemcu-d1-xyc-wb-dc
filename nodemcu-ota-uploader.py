@@ -80,6 +80,12 @@ def upload_v2(host, file_path):
     tn_write(tn, '#!endbody')
     tn.close()
 
+    if args.dofile:
+        dofile_v2(filename)
+
+    if args.restart:
+        restart_v2()
+
 
 def dofile(filename):
     dofile_url = 'http://%s:%d/dofile' % (args.host, args.port)
@@ -87,10 +93,27 @@ def dofile(filename):
     print 'dofile(%s)' % filename
 
 
+def dofile_v2(filename):
+    tn = telnetlib.Telnet(args.host, telnet_port)
+    tn_write(tn, '#!cmd:dofile')
+    tn_write(tn, '#!arg:filename=%s' % filename)
+    tn_write(tn, '#!body')
+    tn_write(tn, '#!endbody')
+    tn.close()
+
+
 def restart():
     restart_url = 'http://%s:%d/restart' % (args.host, args.port)
     r = requests.post(restart_url, timeout=args.timeout)
     print 'Restarted.'
+
+
+def restart_v2():
+    tn = telnetlib.Telnet(args.host, telnet_port)
+    tn_write(tn, '#!cmd:restart')
+    tn_write(tn, '#!body')
+    tn_write(tn, '#!endbody')
+    tn.close()
 
 
 def telnet(host):
@@ -118,6 +141,8 @@ def main():
 
     if args.command == 'restart':
         restart()
+    elif args.command == 'restart2':
+        restart_v2()
     elif args.command == 'telnet':
         telnet(args.host)
     elif args.command == 'upload':
