@@ -59,6 +59,22 @@ def tn_write(tn, str):
     time.sleep(0.1)
 
 
+def tn_command(tn, command, command_args=False, body=''):
+    tn_write(tn, '#!cmd:%s' % command)
+
+    if command_args:
+        for k, v in command_args.iteritems():
+            tn_write(tn, '#!arg:%s=%s' % (k, v))
+
+    tn_write(tn, '#!body')
+    first_line = True
+    for line in body.split('\n'):
+        tn.write(('' if first_line else '\n') + line)
+        first_line = False
+    time.sleep(0.8)
+    tn_write(tn, '#!endbody')
+
+
 def upload_v2(host, file_path):
     tn = telnetlib.Telnet(host, telnet_port)
 
@@ -68,16 +84,7 @@ def upload_v2(host, file_path):
     filename = os.path.basename(file_path)
     file_length = len(file_content)
 
-    tn_write(tn, '#!cmd:upload')
-    tn_write(tn, '#!arg:filename=%s' % filename)
-    tn_write(tn, '#!arg:length=%s' % file_length)
-    tn_write(tn, '#!body')
-    first_line = True
-    for line in file_content.split('\n'):
-        tn.write(('' if first_line else '\n') + line)
-        first_line = False
-    time.sleep(0.8)
-    tn_write(tn, '#!endbody')
+    tn_command(tn, 'upload', {'filename': filename, 'length': file_length}, file_content)
     tn.close()
 
     if args.dofile:
@@ -95,10 +102,7 @@ def dofile(filename):
 
 def dofile_v2(filename):
     tn = telnetlib.Telnet(args.host, telnet_port)
-    tn_write(tn, '#!cmd:dofile')
-    tn_write(tn, '#!arg:filename=%s' % filename)
-    tn_write(tn, '#!body')
-    tn_write(tn, '#!endbody')
+    tn_command(tn, 'dofile', {'filename': filename})
     tn.close()
 
 
@@ -110,9 +114,7 @@ def restart():
 
 def restart_v2():
     tn = telnetlib.Telnet(args.host, telnet_port)
-    tn_write(tn, '#!cmd:restart')
-    tn_write(tn, '#!body')
-    tn_write(tn, '#!endbody')
+    tn_command(tn, 'restart')
     tn.close()
 
 
