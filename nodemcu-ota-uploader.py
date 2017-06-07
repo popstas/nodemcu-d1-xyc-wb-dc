@@ -8,9 +8,11 @@ import requests
 import StringIO
 import sys
 import telnetlib
+import time
 
 parser = argparse.ArgumentParser(description='nodemcu-ota-uploader')
-parser.add_argument('file_path', help='File path to upload or \'restart\' command')
+parser.add_argument('command', help='Command')
+parser.add_argument('file_path', help='File path to upload or \'restart\' command', nargs='?', default=False)
 parser.add_argument('-r', '--restart', help='Restart after upload', action='store_true')
 parser.add_argument('-d', '--dofile', help='dofile() after upload', action='store_true')
 parser.add_argument('--host', help='NodeMCU host')
@@ -18,6 +20,8 @@ parser.add_argument('-p', '--port', help='NodeMCU port', default=80)
 parser.add_argument('-t', '--timeout', help='Request timeout', default=10)
 parser.add_argument('-c', '--chunk-size', help='Chunk size', default=1024)
 args = parser.parse_args()
+
+telnet_port = 2323
 
 
 def upload(file_path):
@@ -35,7 +39,7 @@ def upload(file_path):
         for i in range(0, file_length, args.chunk_size):
             chunk_num = chunk_num + 1
             chunk = file_content[i:i + args.chunk_size]
-            print('Chunk %d / %d...') % (chunk_num, chunks_total)
+            print 'Chunk %d / %d...' % (chunk_num, chunks_total)
             r = requests.post(send_url, data={'filename': filename, 'content': chunk, 'chunk': chunk_num},
                               timeout=args.timeout)
     else:
@@ -48,6 +52,33 @@ def upload(file_path):
 
     if args.restart:
         restart()
+
+
+def tn_write(tn, str):
+    tn.write(str)
+    time.sleep(0.1)
+
+
+def upload_v2(host, file_path):
+    tn = telnetlib.Telnet(host, telnet_port)
+
+    with open(file_path, 'r') as f:
+        file_content = f.read()
+
+    filename = os.path.basename(file_path)
+    file_length = len(file_content)
+
+    tn_write(tn, '#!cmd:upload')
+    tn_write(tn, '#!arg:filename=%s' % filename)
+    tn_write(tn, '#!arg:length=%s' % file_length)
+    tn_write(tn, '#!body')
+    first_line = True
+    for line in file_content.split('\n'):
+        tn.write(('' if first_line else '\n') + line)
+        first_line = False
+    time.sleep(0.8)
+    tn_write(tn, '#!endbody')
+    tn.close()
 
 
 def dofile(filename):
@@ -85,12 +116,14 @@ def main():
         print('host not defined')
         sys.exit(1)
 
-    if args.file_path == 'restart':
+    if args.command == 'restart':
         restart()
-    elif args.file_path == 'telnet':
+    elif args.command == 'telnet':
         telnet(args.host)
+    elif args.command == 'upload':
+        upload_v2(args.host, args.file_path)
     else:
-        upload(args.file_path)
+        upload(args.command)
 
 
 main()
