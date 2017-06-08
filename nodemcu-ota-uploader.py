@@ -54,9 +54,9 @@ def upload(file_path):
         restart()
 
 
-def tn_write(tn, str, pause=0.1):
+def tn_write(tn, str, timeout=3):
     tn.write(str)
-    time.sleep(pause)
+    tn.expect(['OK'], timeout)
 
 
 def tn_command(tn, command, command_args=False, body=''):
@@ -67,18 +67,13 @@ def tn_command(tn, command, command_args=False, body=''):
             tn_write(tn, '#!arg:%s=%s' % (k, v))
 
     tn_write(tn, '#!body')
-    first_line = True
-    for line in body.split('\n'):
-        tn.write(('' if first_line else '\n') + line)
-        first_line = False
-    time.sleep(1)
+    tn_write(tn, body)
     tn_write(tn, '#!endbody', 0)
 
 
 def tn_command_without_output(tn, command, command_args=False, body=''):
     tn_command(tn, command, command_args, body)
-
-    res = tn.expect(['OK', 'ERROR'], 1)
+    res = tn.expect(['OK', 'ERROR'], 2)
     return True if res[2] == 'OK' else False
 
 
