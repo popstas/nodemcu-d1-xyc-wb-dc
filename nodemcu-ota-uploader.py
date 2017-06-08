@@ -78,8 +78,9 @@ def tn_command(tn, command, command_args=False, body=''):
     return True if res[2] == 'OK' else False
 
 
-def upload_v2(host, file_path, max_tries=3):
-    tn = telnetlib.Telnet(host, telnet_port)
+def upload_v2(file_path, max_tries=3):
+    print args.host, telnet_port
+    tn = telnetlib.Telnet(args.host, telnet_port)
 
     with open(file_path, 'r') as f:
         file_content = f.read()
@@ -131,12 +132,12 @@ def restart_v2():
     tn.close()
 
 
-def telnet(host):
+def telnet():
     telnet_url = 'http://%s:%d/telnet' % (args.host, args.port)
     r = requests.post(telnet_url, timeout=args.timeout)
     port = int(r.text.split(': ')[-1])
-    print 'Connect to %s:%d' % (host, port)
-    tn = telnetlib.Telnet(host, port)
+    print 'Connect to %s:%d' % (args.host, port)
+    tn = telnetlib.Telnet(args.host, port)
     print tn.interact()
 
 
@@ -159,9 +160,9 @@ def main():
     elif args.command == 'restart2':
         restart_v2()
     elif args.command == 'telnet':
-        telnet(args.host)
+        telnet()
     elif args.command == 'upload':
-        upload_v2(args.host, args.file_path)
+        upload_v2(args.file_path)
     else:
         upload(args.command)
 
