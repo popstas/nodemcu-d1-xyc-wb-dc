@@ -54,9 +54,9 @@ def upload(file_path):
         restart()
 
 
-def tn_write(tn, str):
+def tn_write(tn, str, pause=0.1):
     tn.write(str)
-    time.sleep(0.1)
+    time.sleep(pause)
 
 
 def tn_command(tn, command, command_args=False, body=''):
@@ -71,11 +71,14 @@ def tn_command(tn, command, command_args=False, body=''):
     for line in body.split('\n'):
         tn.write(('' if first_line else '\n') + line)
         first_line = False
-    time.sleep(0.8)
-    tn_write(tn, '#!endbody')
+    time.sleep(1)
+    tn_write(tn, '#!endbody', 0)
+
+    res = tn.expect(['OK', 'ERROR'], 1)
+    return True if res[2] == 'OK' else False
 
 
-def upload_v2(host, file_path):
+def upload_v2(host, file_path, max_tries=3):
     tn = telnetlib.Telnet(host, telnet_port)
 
     with open(file_path, 'r') as f:
@@ -84,8 +87,18 @@ def upload_v2(host, file_path):
     filename = os.path.basename(file_path)
     file_length = len(file_content)
 
-    tn_command(tn, 'upload', {'filename': filename, 'length': file_length}, file_content)
+    success = False
+    tries = 0
+    while not success and tries < max_tries:
+        success = tn_command(tn, 'upload', {'filename': filename, 'length': file_length}, file_content)
+        tries += 1
     tn.close()
+
+    if not success:
+        print 'Upload failed'
+        sys.exit(1)
+
+    print 'Upload finished' + (' (tries: %d)' % tries if tries > 1 else '')
 
     if args.dofile:
         dofile_v2(filename)
