@@ -74,12 +74,21 @@ def tn_command(tn, command, command_args=False, body=''):
     time.sleep(1)
     tn_write(tn, '#!endbody', 0)
 
+
+def tn_command_without_output(tn, command, command_args=False, body=''):
+    tn_command(tn, command, command_args, body)
+
     res = tn.expect(['OK', 'ERROR'], 1)
     return True if res[2] == 'OK' else False
 
 
+def tn_command_with_output(tn, command, command_args=False, body=''):
+    tn_command(tn, command, command_args, body)
+    output = tn.read_until('#!endoutput')
+    print output.replace('#!endoutput', '')
+
+
 def upload_v2(file_path, max_tries=3):
-    print args.host, telnet_port
     tn = telnetlib.Telnet(args.host, telnet_port)
 
     with open(file_path, 'r') as f:
@@ -91,7 +100,7 @@ def upload_v2(file_path, max_tries=3):
     success = False
     tries = 0
     while not success and tries < max_tries:
-        success = tn_command(tn, 'upload', {'filename': filename, 'length': file_length}, file_content)
+        success = tn_command_without_output(tn, 'upload', {'filename': filename, 'length': file_length}, file_content)
         tries += 1
     tn.close()
 
@@ -116,7 +125,7 @@ def dofile(filename):
 
 def dofile_v2(filename):
     tn = telnetlib.Telnet(args.host, telnet_port)
-    tn_command(tn, 'dofile', {'filename': filename})
+    tn_command_without_output(tn, 'dofile', {'filename': filename})
     tn.close()
 
 
@@ -128,11 +137,17 @@ def restart():
 
 def restart_v2():
     tn = telnetlib.Telnet(args.host, telnet_port)
-    tn_command(tn, 'restart')
+    tn_command_without_output(tn, 'restart')
     tn.close()
 
 
-def telnet():
+def health():
+    tn = telnetlib.Telnet(args.host, telnet_port)
+    tn_command_with_output(tn, 'health')
+    tn.close()
+
+
+def telnet(host):
     telnet_url = 'http://%s:%d/telnet' % (args.host, args.port)
     r = requests.post(telnet_url, timeout=args.timeout)
     port = int(r.text.split(': ')[-1])
@@ -161,6 +176,8 @@ def main():
         restart_v2()
     elif args.command == 'telnet':
         telnet()
+    elif args.command == 'health':
+        health()
     elif args.command == 'upload':
         upload_v2(args.file_path)
     else:
