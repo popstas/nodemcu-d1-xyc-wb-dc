@@ -54,7 +54,7 @@ def upload(file_path):
         restart()
 
 
-def tn_write(tn, str, timeout=3):
+def tn_write(tn, str, timeout=5):
     tn.write(str)
     tn.expect(['OK'], timeout)
 
@@ -67,7 +67,8 @@ def tn_command(tn, command, command_args=False, body=''):
             tn_write(tn, '#!arg:%s=%s' % (k, v))
 
     tn_write(tn, '#!body')
-    tn_write(tn, body)
+    if body != '':
+        tn_write(tn, body)
     tn_write(tn, '#!endbody', 0)
 
 
@@ -151,6 +152,14 @@ def telnet(host):
     print tn.interact()
 
 
+def telnet_v2():
+    tn = telnetlib.Telnet(args.host, 2324)
+    try:
+        tn.interact()
+    except (KeyboardInterrupt, SystemExit):
+        sys.exit(0)
+
+
 def main():
     config_path = os.getcwd() + '/.ota'
     if os.path.isfile(config_path):
@@ -171,6 +180,8 @@ def main():
         restart_v2()
     elif args.command == 'telnet':
         telnet()
+    elif args.command == 'telnet2':
+        telnet_v2()
     elif args.command == 'health':
         health()
     elif args.command == 'upload':
